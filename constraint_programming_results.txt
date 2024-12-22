@@ -1,0 +1,32 @@
+n = 0
+Runtime: 0.02970576286315918 seconds
+
+n = 1
+Runtime: 0.01615309715270996 seconds
+
+n = 2
+Runtime: 0.0016243457794189453 seconds
+
+n = 3
+Runtime: 0.04638242721557617 seconds
+
+n = 4
+Runtime: 0.046401262283325195 seconds
+
+n = 5
+Runtime: 0.49697017669677734 seconds
+
+n = 6
+Runtime: 1.9510889053344727 seconds
+
+n = 7
+Runtime: 1.514197587966919 seconds
+
+n = 8
+Runtime: 5.131351709365845 seconds
+
+n = 9
+Runtime: 3.2812013626098633 seconds
+
+n = 10
+Runtime: 7.142502307891846 seconds
