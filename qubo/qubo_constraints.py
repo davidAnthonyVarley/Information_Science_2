@@ -71,11 +71,9 @@ def create_Q_matrix(n):
                 matrix[row, col] += 2
 
 
+    #so now, in upper triangular form
     print_matrix(matrix)
-
-
-from amplify import Solver, BinaryMatrix
-from amplify.client import FixstarsClient
+    return matrix
 
 
 
@@ -83,7 +81,7 @@ from amplify.client import FixstarsClient
 
 
 
-create_Q_matrix(3)
+#create_Q_matrix(3)
 
 
 
