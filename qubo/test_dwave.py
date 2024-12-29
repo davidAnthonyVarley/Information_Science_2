@@ -18,7 +18,7 @@ def convert_matrix_for_dwave(matrix):
 
     #in upper triangular form, so don't look at anything below diagonal
     for row in range(0, len(matrix)):
-        for col in range(row, len(matrix)):
+        for col in range(0, len(matrix)):
             r = "x" + str(row+1)
             c = "x" + str(col+1)
 
@@ -37,7 +37,31 @@ def get_quantum_simulating_machine():
 # Set up the D-Wave sampler (use a quantum system or simulator)
     sampler = EmbeddingComposite(DWaveSampler())
 
+
+
     return sampler
+
+def print_dwave_solution(solution, n_squared):
+
+    print("Solution:")
+    for var, value in solution.items():
+        print(f"Variable {var} = {value}")
+
+    print("_________________________")
+
+    ordered = {}
+    for var, value in solution.items():
+        ordered[var] = value
     
+    for i in range(1, len(solution.items())):
+        key = 'x' + str(i)
+        print(str(key), ",", ordered[key])
+
+        if (i % n_squared == 0):
+            print() 
+    
+
+
+
 
 
