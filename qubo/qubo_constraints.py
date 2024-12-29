@@ -80,9 +80,11 @@ def add_all_different_constraint_from_notes(Q_unary, unary_matrix_num_rows):
     #print("m (in m x m unary matrix):", m)
     #print("q unary:", len(Q_unary), "x", len(Q_unary))
 
+    #add diagonals
     for j in range(0, m):
         '''print("j:", j)'''
-        coefficient = 2 * (j-m) * 3
+        penalty = 1
+        coefficient = 2 * (j-m) * 3 * penalty
         print("Coefficient:", coefficient)
 
         for i in range(0, m):
@@ -200,6 +202,7 @@ def create_Q_matrix(n):
             else:
                 matrix[row, col] += 2
 
+
     #add objective function
     
 
@@ -208,24 +211,32 @@ def create_Q_matrix(n):
         matrix[ d][ d] += -2*m
 
 
+
     #so now, in upper triangular form
+    print("before unary and all diff")
     print_matrix(matrix)
     print()
     print()
     print()
     
 
-    test_matrix = np.zeros((n_squared, n_squared), dtype=int)
-    #q_unary = convert_to_unary_encoding(test_matrix)
+    '''test_matrix = np.zeros((n_squared, n_squared), dtype=int)
+    m = (n * (n*1)) / 2
+    for d in range(0, len((test_matrix))):
+        test_matrix[ d][ d] += -2*m
+    q_unary = convert_to_unary_encoding(test_matrix)'''
     
     q_unary = convert_to_unary_encoding(matrix)
+    add_all_different_constraint_from_notes(q_unary, n*n)
+
+    print_matrix("after q unary and all diff")
     print_matrix(q_unary)
     print()
     print()
     print()
 
     #add_all_different_constraint_mine(q_unary, n*n)
-    add_all_different_constraint_from_notes(q_unary, n*n)
+    
     #print("after all different added")
     #print_matrix(q_unary)
     #print()
@@ -240,17 +251,17 @@ def create_Q_matrix(n):
 
 
 #create_Q_matrix(2)
-m = 2
+'''m = 2
 #matrix = np.array([[1, 2], [0, 1]])
 #q_old = np.zeros((m, m), dtype=int)
 
 #the Q in xQx, for an unary encoding matrix
-q_unary = create_Q_matrix(m)
+q_unary = create_Q_matrix(m)'''
 
 
 '''print("unary encoding matrix")
 print_matrix(np.zeros((m, m), dtype=int))
-
 '''
-print("q_unary")
-print_matrix(q_unary)
+
+'''print("q_unary")
+    print_matrix(q_unary)'''

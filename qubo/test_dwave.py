@@ -53,9 +53,9 @@ def print_dwave_solution(solution, n_squared):
     for var, value in solution.items():
         ordered[var] = value
     
-    for i in range(1, len(solution.items())):
+    for i in range(1, len(solution.items()) + 1):
         key = 'x' + str(i)
-        print(str(key), ",", ordered[key])
+        print(ordered[key], ",", end="")
 
         if (i % n_squared == 0):
             print() 
