@@ -119,6 +119,8 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     #print("unary_var_2:", unary_var_2)
     #print('-')
 
+
+    # Remove 'u' and split the indices (i,j)
     unary_var_1 = unary_var_1.replace('u', '')
     #now juust "i,j"
     str_unary_var_1_indices = unary_var_1.split(',')
@@ -139,8 +141,8 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     #print("unary_var_2_indices:", unary_var_2_indices)
     #print()
 
-    Q_row = unary_var_1_indices[0]*(n**2) + unary_var_1_indices[1]
-    Q_col = unary_var_2_indices[0]*(n**2) + unary_var_2_indices[1]
+    Q_row = unary_var_1_indices[0]*(n**2) + (unary_var_1_indices[1])
+    Q_col = unary_var_2_indices[0]*(n**2) + (unary_var_2_indices[1])
 
     '''Q_row = unary_var_1_indices[0]*(n) + unary_var_1_indices[1]
     Q_col = unary_var_2_indices[0]*(n) + unary_var_2_indices[1]'''
@@ -171,7 +173,14 @@ def add_row_constraints(unary_symbols, Q_unary, m, n):
         sum_of_ms_row = sum(flattened)
         print(sum_of_ms_row)
 
-        expression = (sum_of_ms_row - m)**2
+        penalty = sp.symbols('penalty')
+        # Define an expression
+
+        # Substitute p = 2 into the expression
+        
+        expression = penalty*((sum_of_ms_row - m)**2)
+        expression = expression.subs(penalty, 8)
+
         simplified = sp.expand(expression)
 
         #print(f"Mathematical equation of ((sum of row {ms_row}) - m)^2")
@@ -186,7 +195,8 @@ def add_row_constraints(unary_symbols, Q_unary, m, n):
         #now i want to take the coefficient of 2.0*u31*u32, and add 2 to the corresponding element in the Q matrix. for all components
         # unary matrix =  n**2 by n**2, so
         # Q matrix = n**4 by n**4
-        index = 0
+        inclued = 0
+        not_inclued = 0
         for arg in simplified.args:
             component = str(arg)
 
@@ -194,8 +204,15 @@ def add_row_constraints(unary_symbols, Q_unary, m, n):
                 
                 #ie, we dont care about constants, like m^2
                 place_coefficient_in_Q_matrix(component, Q_unary, n)
-                print("Component ", index)
-                index +=1
+                print("Component ", inclued)
+                inclued +=1
+            else:
+                print(arg, "not added to Q matrix")
+                not_inclued += 1
+        
+        print()
+        print("included: ", inclued)
+        print("not included: ", not_inclued)
                 
 
 def create_Q_matrix(n):
