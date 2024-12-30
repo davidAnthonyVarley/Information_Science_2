@@ -34,7 +34,8 @@ def create_objective_function(m):
     #print("Solution:", solution)
 
 
-n = 3
+#n = 2
+n = int(input("Enter n:"))
 create_objective_function(n)
 
 print("#########################")

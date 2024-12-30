@@ -55,7 +55,7 @@ def print_magic_square(m):
     for row in range(0, len(m)):
         print(index, end=" ")
         for col in range(0, len(m)):
-            print(int(col), end=" ")
+            print(m[row][col], end=" ")
         print()
 
         index+=1
@@ -67,13 +67,20 @@ def print_magic_square(m):
 #magic square here has n * n integers in range [1, n*n]
 def unit_tests(magic_square, m):
     row_errors = 0
+    n = len(magic_square)
+
     print("m:", m)
+    print("n:", n)
+    print("n**2:", n**2)
+    print("n**4:", n**4)
 
     print("----- All Rows = m -----")
     for r in range(0, len(magic_square)):
         row_sum = 0
         for c in range(0, len(magic_square)):
             row_sum += magic_square[r][c]
+        
+        print("if (",row_sum," != ", m,")")
         if (row_sum != m):
             row_errors += 1
     
@@ -113,7 +120,7 @@ def print_dwave_solution(solution, n_squared):
         s+= int(ordered[key])
 
         if (i % int(n_squared) == 0):
-            print("   Sum == ", s)
+            print("   Number == ", s)
             magic_square[row_index][col_index] = s
 
             s = 0
