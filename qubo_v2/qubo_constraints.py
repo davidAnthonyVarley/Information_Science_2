@@ -109,10 +109,10 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     
     
     #print("component:", component)
-    print("coefficient:", coefficient)
+    '''print("coefficient:", coefficient)
     print("unary_var_1:", unary_var_1)
     print("unary_var_2:", unary_var_2)
-    print('-')
+    print('-')'''
 
     unary_var_1 = unary_var_1.replace('u', '')
     #now juust "i,j"
@@ -137,9 +137,9 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     Q_row = unary_var_1_indices[0]*(n**2) + unary_var_1_indices[1]
     Q_col = unary_var_2_indices[0]*(n**2) + unary_var_2_indices[1]
 
-    print("Q row:", Q_row)
+    '''print("Q row:", Q_row)
     print("Q col:", Q_col)
-    print()
+    print()'''
 
     Q_unary[Q_row, Q_col] += coefficient
 
@@ -188,7 +188,7 @@ def create_Q_matrix(n):
     #will return a list of rows, 2D matrix
     #matrix = [([0] * n) for _ in range(n)]
     n_squared = n*n
-    m = (n *(n+1) / 2)
+    m = (n * (n_squared+1) / 2)
 
 
     unary_matrix = [[None] * n_squared for i in range(n_squared)]

@@ -34,7 +34,7 @@ def create_objective_function(m):
     #print("Solution:", solution)
 
 
-n = 2
+n = 3
 create_objective_function(n)
 
 print("#########################")

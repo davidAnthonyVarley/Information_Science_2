@@ -41,7 +41,51 @@ def get_quantum_simulating_machine():
 
     return sampler
 
+def print_magic_square(m):
+    print(m)
+
+    print("Printing matrix:")
+    print("   ", end="")
+    for col in range(0, len(m)):
+        print(str(col+1), end=" ")
+    print()
+
+
+    index = 1
+    for row in range(0, len(m)):
+        print(index, end=" ")
+        for col in range(0, len(m)):
+            print(int(col), end=" ")
+        print()
+
+        index+=1
+    print()
+    print("#########################")
+    print()
+
+
+#magic square here has n * n integers in range [1, n*n]
+def unit_tests(magic_square, m):
+    row_errors = 0
+    print("m:", m)
+
+    print("----- All Rows = m -----")
+    for r in range(0, len(magic_square)):
+        row_sum = 0
+        for c in range(0, len(magic_square)):
+            row_sum += magic_square[r][c]
+        if (row_sum != m):
+            row_errors += 1
+    
+    print("----")
+    print("Errors:", row_errors)
+    print("#############")
+
 def print_dwave_solution(solution, n_squared):
+
+    n = int(n_squared ** (1/2))
+
+    m = int( (n * (n_squared+1)) / 2)
 
     print("Solution:")
     for var, value in solution.items():
@@ -53,12 +97,37 @@ def print_dwave_solution(solution, n_squared):
     for var, value in solution.items():
         ordered[var] = value
     
+    
+
+    magic_square = [[None] * n for i in range(n)]
+    row_index = 0
+    col_index = 0
+
+    s = 0
+
+
     for i in range(1, len(solution.items()) + 1):
+        #print("in pretty print")
         key = 'x' + str(i)
         print(ordered[key], ",", end="")
+        s+= int(ordered[key])
 
-        if (i % n_squared == 0):
-            print() 
+        if (i % int(n_squared) == 0):
+            print("   Sum == ", s)
+            magic_square[row_index][col_index] = s
+
+            s = 0
+
+            col_index += 1
+            if (col_index >= n):
+                col_index = 0
+                row_index+=1
+
+    print("|||||||||||||||||||||||||")
+    print_magic_square(magic_square)
+    unit_tests(magic_square, m)
+    
+            
     
 
 
