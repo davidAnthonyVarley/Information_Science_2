@@ -299,7 +299,7 @@ def add_diagonal_constraints(unary_symbols, Q_unary, m, n):
             place_coefficient_in_Q_matrix(component, Q_unary, n)
 
 def add_all_different_constraint(unary_symbols, Q_unary, m, n):
-    fo
+    pass
 
 def add_all_constraints(unary_symbols, Q_unary, m, n):
 
