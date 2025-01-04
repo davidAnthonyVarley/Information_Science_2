@@ -157,6 +157,8 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     Q_unary[Q_row, Q_col] += coefficient
 
 def add_expression_to_Q_matrix(Q_unary, expression, n):
+    print("expression:")
+    print(expression)
     for arg in expression.args:
         component = str(arg)
         if ('u' in component):
@@ -284,33 +286,42 @@ def add_diagonal_constraints(unary_symbols, Q_unary, m, n):
     rtl_simplified = sp.expand(rtl_expression)
     #print(f"Mathematical equation of ((sum of col {magic_square_column}) - m)^2")
     #print(simplified)
-    for arg in ltr_simplified.args:
-        component = str(arg)
-        if ('u' in component):
-            #ie, we dont care about constants, like m^2
-            #we only care about ui,j ** 2 or 4ua,b * uc,d
-            place_coefficient_in_Q_matrix(component, Q_unary, n)
+    add_expression_to_Q_matrix(Q_unary, ltr_simplified, n)
+    add_expression_to_Q_matrix(Q_unary, rtl_simplified, n)
     
-    for arg in rtl_simplified.args:
-        component = str(arg)
-        if ('u' in component):
-            #ie, we dont care about constants, like m^2
-            #we only care about ui,j ** 2 or 4ua,b * uc,d
-            place_coefficient_in_Q_matrix(component, Q_unary, n)
 
 def add_all_different_constraint(unary_symbols, Q_unary, m, n):
-    pass
+    
+    for c in range(0, n**2):
+        unary_col = [None for _ in range(n**2)]
+        for r in range(0, n**2):
+            unary_col[r] = unary_symbols[r][c]
+        
+        #now, all unary variables in column c in unary_col
+
+        penalty = sp.symbols('penalty')
+        #print("unary_col:", unary_col)
+        expression = (( sum(unary_col) - (n - 1 -c) )**2)
+
+        # substitute p = (any real num) into the expression
+        #penalty.subs(penalty, 1)
+        #expression = penalty*expression
+        
+        simplified = sp.expand(expression)
+        add_expression_to_Q_matrix(Q_unary, simplified, n)
+
 
 def add_all_constraints(unary_symbols, Q_unary, m, n):
 
-    constrain_rows = True
-    #constrain_rows = False
-    constrain_columns = True
-    #constrain_columns = False
-    constrain_diagonals = True
-    #constrain_diagonals = False
-    #all_different = True
-    all_different = False
+    #constrain_rows = True
+    constrain_rows = False
+    #constrain_columns = True
+    constrain_columns = False
+    #constrain_diagonals = True
+    constrain_diagonals = False
+
+    all_different = True
+    #all_different = False
     
     if (constrain_rows): 
         add_row_constraints(unary_symbols, Q_unary, m, n)

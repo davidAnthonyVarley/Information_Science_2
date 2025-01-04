@@ -151,20 +151,28 @@ def unit_tests(magic_square, m, constraints_added):
         for r in range(0, n):
             for c in range(0, n):
                 ms_sum += magic_square[r][c]
-                correct_sum += (r*n) + c
+                correct_sum += (r*n) + c +1
         
         #should be 0
         regular_difference = correct_sum - ms_sum
+        print("correct_sum:", correct_sum)
+        print("ms_sum:", ms_sum)
+        print("regular_difference:", regular_difference)
 
         squared_correct_sum = 0
         squared_ms_sum = 0
         for r in range(0, n):
             for c in range(0, n):
                 squared_ms_sum += (magic_square[r][c])**2
-                squared_correct_sum += ((r*n) + c)**2
+                squared_correct_sum += ((r*n) + c + 1)**2
 
         squared_difference = squared_correct_sum - squared_ms_sum
         
+        print()
+        print("squared_correct_sum:", squared_correct_sum)
+        print("squared_ms_sum:", squared_ms_sum)
+        print("squared_difference:", squared_difference)
+
         #if magic square contains [1 .. n**2]
         #both should be zero
         print("if (",regular_difference," != ", 0,")")
@@ -198,15 +206,12 @@ def print_dwave_solution(solution, n_squared, constraints_added):
     ordered = {}
     for var, value in solution.items():
         ordered[var] = value
-    
-    
 
     magic_square = [[None] * n for i in range(n)]
     row_index = 0
     col_index = 0
 
     s = 0
-
 
     for i in range(1, len(solution.items()) + 1):
         #print("in pretty print")
@@ -215,7 +220,7 @@ def print_dwave_solution(solution, n_squared, constraints_added):
         s+= int(ordered[key])
 
         if (i % int(n_squared) == 0):
-            print("   Number == ", s)
+            print(f"   Variable {i/int(n_squared)} == ", s)
             magic_square[row_index][col_index] = s
 
             s = 0
