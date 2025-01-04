@@ -65,8 +65,17 @@ def print_magic_square(m):
 
 
 #magic square here has n * n integers in range [1, n*n]
-def unit_tests(magic_square, m):
-    row_errors = 0
+def unit_tests(magic_square, m, constraints_added):
+
+    test_rows = constraints_added[0]
+    test_cols = constraints_added[1]
+    test_diagonals = constraints_added[2]
+    test_all_different = constraints_added[3]
+
+
+
+    total_errors = 0
+    total_tests = 0
     n = len(magic_square)
 
     print("m:", m)
@@ -74,24 +83,110 @@ def unit_tests(magic_square, m):
     print("n**2:", n**2)
     print("n**4:", n**4)
 
-    print("----- All Rows = m -----")
-    for r in range(0, len(magic_square)):
-        row_sum = 0
-        for c in range(0, len(magic_square)):
-            row_sum += magic_square[r][c]
-        
-        print("if (",row_sum," != ", m,")")
-        if (row_sum != m):
-            row_errors += 1
-    
-    print("----")
-    print("Errors:", row_errors)
-    print("#############")
+    if (test_rows):
+        total_tests += n
+        row_errors = 0
+        print("----- All Rows = m -----")
+        for r in range(0, len(magic_square)):
+            row_sum = 0
+            for c in range(0, len(magic_square)):
+                row_sum += magic_square[r][c]
 
-def print_dwave_solution(solution, n_squared):
+            print("if (",row_sum," != ", m,")")
+            if (row_sum != m):
+                row_errors += 1
+
+        total_errors +=  row_errors
+        print("----")
+        print("Errors:", row_errors)
+        print("#############")
+    
+    
+    if (test_cols):
+        total_tests += n
+        col_errors = 0
+        print("----- All Columns = m -----")
+        for c in range(0, len(magic_square)):
+            col_sum = 0
+            for r in range(0, len(magic_square)):
+                col_sum += magic_square[r][c]
+
+            print("if (",col_sum," != ", m,")")
+            if (col_sum != m):
+                col_errors += 1
+
+        total_errors +=  col_errors
+        print("----")
+        print("Errors:", col_errors)
+        print("#############")
+
+    if (test_diagonals):
+        total_tests += 2
+        diag_errors = 0
+        print("----- Both diagonals = m -----")
+        ltr_sum = 0
+        rtl_sum = 0
+
+        for d in range(0, len(magic_square)):
+                ltr_sum += magic_square[d][d]
+                rtl_sum += magic_square[d][n - 1 - d]
+
+        print("if (",ltr_sum," != ", m,")")
+        if (ltr_sum != m):
+            diag_errors += 1
+        print("if (",rtl_sum," != ", m,")")
+        if (rtl_sum != m):
+            diag_errors += 1
+
+        total_errors +=  diag_errors
+        print("----")
+        print("diag_errors:", diag_errors)
+        print("#############")
+
+    if(test_all_different):
+        total_tests += 1
+        print("----- All different -----")
+        correct_sum = 0
+        ms_sum = 0
+        for r in range(0, n):
+            for c in range(0, n):
+                ms_sum += magic_square[r][c]
+                correct_sum += (r*n) + c
+        
+        #should be 0
+        regular_difference = correct_sum - ms_sum
+
+        squared_correct_sum = 0
+        squared_ms_sum = 0
+        for r in range(0, n):
+            for c in range(0, n):
+                squared_ms_sum += (magic_square[r][c])**2
+                squared_correct_sum += ((r*n) + c)**2
+
+        squared_difference = squared_correct_sum - squared_ms_sum
+        
+        #if magic square contains [1 .. n**2]
+        #both should be zero
+        print("if (",regular_difference," != ", 0,")")
+        print("or")
+        print("if (",squared_difference," != ", 0,")")
+        
+        if ((regular_difference != 0) or (squared_difference != 0)):
+            total_errors += 1
+            print("Not all different")
+            
+        print("#######################")
+    
+    print("*************")
+    print("Constraints satisfied: ", total_tests - total_errors, "/", total_tests)
+    print("Success ratio: ", str((((total_tests - total_errors) / total_tests) * 100)) + "%")
+
+
+
+
+def print_dwave_solution(solution, n_squared, constraints_added):
 
     n = int(n_squared ** (1/2))
-
     m = int( (n * (n_squared+1)) / 2)
 
     print("Solution:")
@@ -132,7 +227,7 @@ def print_dwave_solution(solution, n_squared):
 
     print("|||||||||||||||||||||||||")
     print_magic_square(magic_square)
-    unit_tests(magic_square, m)
+    unit_tests(magic_square, m, constraints_added)
     
             
     

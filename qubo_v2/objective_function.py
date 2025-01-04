@@ -11,7 +11,7 @@ def create_objective_function(m):
     print("Using", m, "x", m, "unary encoding matrix")
     print("Creating Q", m*m, "x", m*m, "matrix")
     print()
-    coefficient_matrix = create_Q_matrix(m)
+    coefficient_matrix, constraints_added = create_Q_matrix(m)
 
     print("Converting Q unary matrix for dwave")
     Q = convert_matrix_for_dwave(coefficient_matrix)
@@ -28,7 +28,7 @@ def create_objective_function(m):
 
     # Get and print the solution
     solution = response.first.sample
-    print_dwave_solution(solution, n*n)
+    print_dwave_solution(solution, n*n, constraints_added)
 
 
     #print("Solution:", solution)

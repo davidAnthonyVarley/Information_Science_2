@@ -78,7 +78,7 @@ def place_variables_in_unary_matrix(unary_matrix):
     for row in range(0, n_squared):
         for col in range(0, n_squared):
             label = f"u{row+1},{col+1}"
-            print(label)
+            #print(label)
             unary_matrix[row][col] = label
             #print("matrix entrry: ", unary_matrix[row, col])
     
@@ -156,6 +156,14 @@ def place_coefficient_in_Q_matrix(component, Q_unary, n):
     #if (Q_col < Q_row):
     Q_unary[Q_row, Q_col] += coefficient
 
+def add_expression_to_Q_matrix(Q_unary, expression, n):
+    for arg in expression.args:
+        component = str(arg)
+        if ('u' in component):
+            #ie, we dont care about constants, like m^2
+            #we only care about ui,j ** 2 or 4ua,b * uc,d
+            place_coefficient_in_Q_matrix(component, Q_unary, n)
+
 def add_row_constraints(unary_symbols, Q_unary, m, n):
 
     for ms_row in range(0, n):
@@ -179,41 +187,144 @@ def add_row_constraints(unary_symbols, Q_unary, m, n):
         # Substitute p = 2 into the expression
         
         expression = penalty*((sum_of_ms_row - m)**2)
-        expression = expression.subs(penalty, 8)
+        expression = expression.subs(penalty, 1)
 
         simplified = sp.expand(expression)
 
-        #print(f"Mathematical equation of ((sum of row {ms_row}) - m)^2")
+        add_expression_to_Q_matrix(Q_unary, simplified, n)
+                
+def add_column_constraints(unary_symbols, Q_unary, m, n):
+
+    for magic_square_column in range(0, n):
+
+        #all the unary variables that make up the sum of the col in the magic sqaure
+        col_in_magic_square = [[None for _ in range(n)] for _ in range(n)]
+
+        for r in range(n):
+            ms_var = [] * n**2
+            for unary_var_index in range(0, n**2):
+                ms_var.append(unary_symbols[(r * n) + magic_square_column][unary_var_index])
+            
+            col_in_magic_square[r] = ms_var
+
+        #'flattened' represents
+        #all unary vars in one (n^2 * n) length list, which are
+        #representing a column in the n*n magic square
+        flattened = [val for row in col_in_magic_square for val in row]
+
+        sum_of_ms_col = sum(flattened)
+        penalty = sp.symbols('penalty')
+        
+        expression = penalty*((sum_of_ms_col - m)**2)
+        # substitute p = (any real num) into the expression
+        expression = expression.subs(penalty, 1)
+
+        simplified = sp.expand(expression)
+        #print(f"Mathematical equation of ((sum of col {magic_square_column}) - m)^2")
         #print(simplified)
 
-        #individual_components = simplified.args
-        #print(individual_components)
-        '''for component in simplified.args:
-            print(component)
-        print()'''
-
-        #now i want to take the coefficient of 2.0*u31*u32, and add 2 to the corresponding element in the Q matrix. for all components
-        # unary matrix =  n**2 by n**2, so
-        # Q matrix = n**4 by n**4
-        inclued = 0
-        not_inclued = 0
         for arg in simplified.args:
             component = str(arg)
 
             if ('u' in component):
-                
                 #ie, we dont care about constants, like m^2
                 place_coefficient_in_Q_matrix(component, Q_unary, n)
-                print("Component ", inclued)
-                inclued +=1
-            else:
-                print(arg, "not added to Q matrix")
-                not_inclued += 1
+
+def add_diagonal_constraints(unary_symbols, Q_unary, m, n):
+
+    #ltr = left to right
+    #rtl = right to left
+
+    ltr = 0
+    rtl = (n - 1)
+
+    ltr_increment = n+1
+    rtl_increment = n-1
+
+    ltr_diagonal = [[None for _ in range(n)] for _ in range(n)]
+    rtl_diagonal = [[None for _ in range(n)] for _ in range(n)]
+
+
+    #all the unary variables that make up the sum of the diagonals in the magic sqaure
+    for r in range(n):
+        ltr_var = [] * n**2
+        rtl_var = [] * n**2
+        for unary_var_index in range(0, n**2):
+            ltr_var.append(unary_symbols[ltr][unary_var_index])
+            rtl_var.append(unary_symbols[rtl][unary_var_index])
         
-        print()
-        print("included: ", inclued)
-        print("not included: ", not_inclued)
-                
+        ltr_diagonal[r] = ltr_var
+        rtl_diagonal[r] = rtl_var
+
+        ltr += ltr_increment
+        rtl += rtl_increment
+    
+    #'flattened' represents
+    #all unary vars in one (n^2 * n) length list, which are
+    #representing a column in the n*n magic square
+    ltr_flattened = [val for row in ltr_diagonal for val in row]
+    rtl_flattened = [val for row in rtl_diagonal for val in row]
+    
+    print("ltr_flattened:")
+    print(ltr_flattened)
+    print("rtl_flattened:")
+    print(rtl_flattened)
+    
+    sum_of_ltr_diag = sum(ltr_flattened)
+    sum_of_rtl_diag = sum(rtl_flattened)
+    penalty = sp.symbols('penalty')
+    
+    ltr_expression = penalty*((sum_of_ltr_diag - m)**2)
+    rtl_expression = penalty*((sum_of_rtl_diag - m)**2)
+    # substitute p = (any real num) into the expression
+    ltr_expression = ltr_expression.subs(penalty, 1)
+    rtl_expression = rtl_expression.subs(penalty, 1)
+    
+    ltr_simplified = sp.expand(ltr_expression)
+    rtl_simplified = sp.expand(rtl_expression)
+    #print(f"Mathematical equation of ((sum of col {magic_square_column}) - m)^2")
+    #print(simplified)
+    for arg in ltr_simplified.args:
+        component = str(arg)
+        if ('u' in component):
+            #ie, we dont care about constants, like m^2
+            #we only care about ui,j ** 2 or 4ua,b * uc,d
+            place_coefficient_in_Q_matrix(component, Q_unary, n)
+    
+    for arg in rtl_simplified.args:
+        component = str(arg)
+        if ('u' in component):
+            #ie, we dont care about constants, like m^2
+            #we only care about ui,j ** 2 or 4ua,b * uc,d
+            place_coefficient_in_Q_matrix(component, Q_unary, n)
+
+def add_all_different_constraint(unary_symbols, Q_unary, m, n):
+    fo
+
+def add_all_constraints(unary_symbols, Q_unary, m, n):
+
+    constrain_rows = True
+    #constrain_rows = False
+    constrain_columns = True
+    #constrain_columns = False
+    constrain_diagonals = True
+    #constrain_diagonals = False
+    #all_different = True
+    all_different = False
+    
+    if (constrain_rows): 
+        add_row_constraints(unary_symbols, Q_unary, m, n)
+    if (constrain_columns):
+        add_column_constraints(unary_symbols, Q_unary, m, n)
+    if (constrain_diagonals):
+        add_diagonal_constraints(unary_symbols, Q_unary, m, n)
+    if (all_different):
+        add_all_different_constraint(unary_symbols, Q_unary, m, n)
+    
+    constraints_added = [constrain_rows, constrain_columns, constrain_diagonals, all_different]
+
+    return constraints_added
+
 
 def create_Q_matrix(n):
     #will return a list of rows, 2D matrix
@@ -238,14 +349,12 @@ def create_Q_matrix(n):
     #for algebra
     unary_symbols = [[sp.Symbol(cell) for cell in row] for row in unary_matrix]
 
-    #account for sums of rows
-    add_row_constraints(unary_symbols, Q_unary, m, n)
+    #add constraints
+    constraints_added = add_all_constraints(unary_symbols, Q_unary, m, n)
     
     print_matrix(Q_unary)
 
-    
-
-    return Q_unary
+    return Q_unary, constraints_added
 
     
 
