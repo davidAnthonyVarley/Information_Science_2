@@ -1,7 +1,7 @@
 from constraint_programming.constraint_programming import run_constraint_programming_model
 import time
 
-inputs = [20, 30, 40, 50, 60, 70, 80, 90, 100]#[i for i in range(10)]
+inputs = [ 2,4,8,16,32, 64, 128]#[i for i in range(10)]
 start_times = [-1] * len(inputs)
 end_times = [-1] * len(inputs)
 

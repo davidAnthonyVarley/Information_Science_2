@@ -1,5 +1,5 @@
 
-from dwave.system import DWaveSampler, EmbeddingComposite
+from dwave.system import DWaveSampler, EmbeddingComposite, LeapHybridSampler
 import dimod
 import os
 
@@ -35,11 +35,12 @@ def get_quantum_simulating_machine():
 
 
 # Set up the D-Wave sampler (use a quantum system or simulator)
-    sampler = EmbeddingComposite(DWaveSampler())
-
-
+    #sampler = EmbeddingComposite(DWaveSampler())
+    sampler = LeapHybridSampler()
 
     return sampler
+
+
 
 def print_magic_square(m):
     print(m)

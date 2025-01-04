@@ -1,5 +1,6 @@
 #create Q matrix of xQx
 import numpy as np
+import sympy as sp
 
 def print_matrix(m):
     print("Printing matrix:")
@@ -13,7 +14,7 @@ def print_matrix(m):
     for row in m:
         print(index, end=" ")
         for col in row:
-            print(col, end=" ")
+            print(int(col), end=" ")
         print()
 
         index+=1
@@ -21,56 +22,17 @@ def print_matrix(m):
     print("#########################")
     print()
 
-def add_all_different_constraint_mine(Q_unary, unary_matrix_num_rows):
+def print_str_matrix(m):
+    print("Printing matrix:")
 
-    m = unary_matrix_num_rows #same as num of columns
+    for row in range(0, len(m)):
+        for col in range(0, len(m)):
+            print((m[row][col]), end=" ")
+        print()
 
-    #firstly, every cell in the first column multiplied by
-    # for i in 1 -> m for r in 1 -> m, Ui,j * (U r,c - Ur,c+1)
-
-    #and vice versa,
-    # for i in 1 -> m for r in 1 -> m, -Ui,j+1 * (U r,c - Ur,c+1)
-    
-    #go through all columns
-    '''for j in range(0, m-1):
-
-        first_col = j
-        second_col = j+1
-
-        for i in range(0, m):
-            Q_row_index = (i * m) + first_col
-
-            for r in range(0, m):
-                #Ui,j * (U r,c - Ur,c+1)
-                Q_first_col_index = (r * m) + first_col
-                Q_second_col_index = (r * m) + second_col
-
-                Q_unary[Q_row_index][Q_first_col_index] += 1
-                Q_unary[Q_row_index][Q_second_col_index] -= 1
-            
-            for r in range(0, m):
-                #-Ui,j+1 * (U r,c - Ur,c+1)
-                Q_second_col_index = (r * m) + second_col
-                Q_first_col_index = (r * m) + first_col
-
-                Q_unary[Q_row_index][Q_second_col_index] += 1
-                Q_unary[Q_row_index][Q_first_col_index] -= 1
-'''
-    
-    #please god let this work
-    for j in range(0, m-1):
-
-        for i in range(j, m):
-            row_index = (i*m) + i
-
-            Q_unary[row_index, row_index] += 1
-
-            for r in range(i+1, m, 2):
-                print("At row", i, ",", "col", r)
-                Q_unary[row_index][(r*m) + i] += 2
-                #Q_unary[row_index][(r*m) + i +1] -= 2
-        
-
+    print()
+    print("#########################")
+    print()
 
 
 def add_all_different_constraint_from_notes(Q_unary, unary_matrix_num_rows):
@@ -84,7 +46,7 @@ def add_all_different_constraint_from_notes(Q_unary, unary_matrix_num_rows):
     for j in range(0, m):
         '''print("j:", j)'''
         penalty = 1
-        coefficient = 2 * (j-m) * 3 * penalty
+        coefficient = 2 * (j-m+1) * 3 * penalty
         print("Coefficient:", coefficient)
 
         for i in range(0, m):
@@ -109,140 +71,310 @@ def add_all_different_constraint_from_notes(Q_unary, unary_matrix_num_rows):
     return Q_unary
 
 
-def apply_Q_old_cell_to_Q_unary(Q_old, row, col, Q_unary):
-    m = len(Q_old)
 
-    #this represents coefficient of x1 * x2,
-    #where x is sum of row unary variables
-    coefficient = Q_old[row][col]
+def place_variables_in_unary_matrix(unary_matrix):
+    n_squared = len(unary_matrix)
 
-    #will now apply this coefficient to appropriate coefficients
-    #in m^2 by m^2 uunary encoding Q matri
-    '''print("Applying Q_old", row+1, col+1, "to new Q unary matrix")
-    print("Unary matrix is", m, "by", m)
-    print("Q_unary matrix is", m*m, "by", m*m)
-    print("Coefficient:", coefficient)
-    print("------------------------")'''
-    for i in range((row)*m, (row+1)*m ):
-        for j in range(col*m, (col+1)*m ):
-            Q_unary[i][j] += coefficient
-            '''print("Adding coeff to Q_u", i+1, j+1)
+    for row in range(0, n_squared):
+        for col in range(0, n_squared):
+            label = f"u{row+1},{col+1}"
+            #print(label)
+            unary_matrix[row][col] = label
+            #print("matrix entrry: ", unary_matrix[row, col])
+    
+    return unary_matrix
+
+def place_coefficient_in_Q_matrix(component, Q_unary, n):
+
+    coefficient = 1.0
+    unary_var_1 = ''
+    unary_var_2 = ''
+
+    if (component.count('u') == 1):
+        #ie, if it is u11**2, change to just u11
+        one_unary_var_and_coefficient = component.replace('**2', '')
+        separated = one_unary_var_and_coefficient.split('*')
+
+        if ( not ('u' in separated[0])):
+            coefficient = float(separated[0])
+            unary_var_1 = separated[1]
+        else:
+            unary_var_1 = separated[0]
+        
+        unary_var_2 = unary_var_1
+        
+        #now, unary var looks like ui,j
+    else: #else is c*ua,b*ud,e
+        
+        separated = component.split('*')
+        
+        coefficient = float(separated[0])
+        unary_var_1 = separated[1]
+        unary_var_2 = separated[2]
+    
+    
+    #print("component:", component)
+    #print("coefficient:", coefficient)
+    #print("unary_var_1:", unary_var_1)
+    #print("unary_var_2:", unary_var_2)
+    #print('-')
+
+
+    # Remove 'u' and split the indices (i,j)
+    unary_var_1 = unary_var_1.replace('u', '')
+    #now juust "i,j"
+    str_unary_var_1_indices = unary_var_1.split(',')
+
+    unary_var_2 = unary_var_2.replace('u', '')
+    #now juust "i,j"
+    str_unary_var_2_indices = unary_var_2.split(',')
+
+    unary_var_1_indices = [-1] * 2
+    unary_var_2_indices = [-1] * 2
+
+    #cast string indices to ints
+    for i in range(0, len(str_unary_var_1_indices)):
+        unary_var_1_indices[i] = int(str_unary_var_1_indices[i]) - 1
+        unary_var_2_indices[i] = int(str_unary_var_2_indices[i]) - 1
+
+    #print("unary_var_1_indices:", unary_var_1_indices)
+    #print("unary_var_2_indices:", unary_var_2_indices)
+    #print()
+
+    Q_row = unary_var_1_indices[0]*(n**2) + (unary_var_1_indices[1])
+    Q_col = unary_var_2_indices[0]*(n**2) + (unary_var_2_indices[1])
+
+    '''Q_row = unary_var_1_indices[0]*(n) + unary_var_1_indices[1]
+    Q_col = unary_var_2_indices[0]*(n) + unary_var_2_indices[1]'''
+
+    '''print("Q row:", Q_row)
+    print("Q col:", Q_col)
     print()'''
 
+    #if below diagonal, don't add
 
+    #if (Q_col < Q_row):
+    Q_unary[Q_row, Q_col] += coefficient
 
-def convert_to_unary_encoding(Q_old):
-    m = len(Q_old)
+def add_expression_to_Q_matrix(Q_unary, expression, n):
+    print("Fully worked out expression:")
+    print(expression)
+    print("---")
+    for arg in expression.args:
+        component = str(arg)
+        if ('u' in component):
+            #ie, we dont care about constants, like m^2
+            #we only care about ui,j ** 2 or 4ua,b * uc,d
+            place_coefficient_in_Q_matrix(component, Q_unary, n)
 
-    m_squared = m*m
-    Q_unary = np.zeros((m_squared, m_squared), dtype=int)
+def add_row_constraints(unary_symbols, Q_unary, m, n):
 
-    for row in range(0, m):
-        for col in range(row, m):
+    for ms_row in range(0, n):
+        first_num_in_row = (ms_row) * n
+        last_num_in_row = (ms_row+1) * n
 
-            apply_Q_old_cell_to_Q_unary(Q_old, row, col, Q_unary)
+        #all the unary variables that make up the sum of the row in the magic sqaure
+        row_in_magic_square = unary_symbols[first_num_in_row : last_num_in_row]
 
-    
-    return Q_unary
+        #print(row_in_magic_square)
 
+        #all unary vars in one (n^2 * n) length list
+        flattened = [item for sublist in row_in_magic_square for item in sublist]
+
+        sum_of_ms_row = sum(flattened)
+        print("Sum_of_ms_row")
+        print(sum_of_ms_row)
+        print(".")
+
+        penalty = sp.symbols('penalty')
+        # Define an expression
+
+        # Substitute p = 2 into the expression
+        
+        print()
+        expression = penalty*((sum_of_ms_row - m)**2)
+        expression = expression.subs(penalty, 1)
+
+        simplified = sp.expand(expression)
+
+        add_expression_to_Q_matrix(Q_unary, simplified, n)
+                
+def add_column_constraints(unary_symbols, Q_unary, m, n):
+
+    for magic_square_column in range(0, n):
+
+        #all the unary variables that make up the sum of the col in the magic sqaure
+        col_in_magic_square = [[None for _ in range(n)] for _ in range(n)]
+
+        for r in range(n):
+            ms_var = [] * n**2
+            for unary_var_index in range(0, n**2):
+                ms_var.append(unary_symbols[(r * n) + magic_square_column][unary_var_index])
             
+            col_in_magic_square[r] = ms_var
+
+        #'flattened' represents
+        #all unary vars in one (n^2 * n) length list, which are
+        #representing a column in the n*n magic square
+        flattened = [val for row in col_in_magic_square for val in row]
+
+        sum_of_ms_col = sum(flattened)
+        penalty = sp.symbols('penalty')
+        
+        expression = penalty*((sum_of_ms_col - m)**2)
+        # substitute p = (any real num) into the expression
+        expression = expression.subs(penalty, 1)
+
+        simplified = sp.expand(expression)
+        #print(f"Mathematical equation of ((sum of col {magic_square_column}) - m)^2")
+        #print(simplified)
+
+        for arg in simplified.args:
+            component = str(arg)
+
+            if ('u' in component):
+                #ie, we dont care about constants, like m^2
+                place_coefficient_in_Q_matrix(component, Q_unary, n)
+
+def add_diagonal_constraints(unary_symbols, Q_unary, m, n):
+
+    #ltr = left to right
+    #rtl = right to left
+
+    ltr = 0
+    rtl = (n - 1)
+
+    ltr_increment = n+1
+    rtl_increment = n-1
+
+    ltr_diagonal = [[None for _ in range(n)] for _ in range(n)]
+    rtl_diagonal = [[None for _ in range(n)] for _ in range(n)]
+
+
+    #all the unary variables that make up the sum of the diagonals in the magic sqaure
+    for r in range(n):
+        ltr_var = [] * n**2
+        rtl_var = [] * n**2
+        for unary_var_index in range(0, n**2):
+            ltr_var.append(unary_symbols[ltr][unary_var_index])
+            rtl_var.append(unary_symbols[rtl][unary_var_index])
+        
+        ltr_diagonal[r] = ltr_var
+        rtl_diagonal[r] = rtl_var
+
+        ltr += ltr_increment
+        rtl += rtl_increment
+    
+    #'flattened' represents
+    #all unary vars in one (n^2 * n) length list, which are
+    #representing a column in the n*n magic square
+    ltr_flattened = [val for row in ltr_diagonal for val in row]
+    rtl_flattened = [val for row in rtl_diagonal for val in row]
+    
+    print("ltr_flattened:")
+    print(ltr_flattened)
+    print("rtl_flattened:")
+    print(rtl_flattened)
+    
+    sum_of_ltr_diag = sum(ltr_flattened)
+    sum_of_rtl_diag = sum(rtl_flattened)
+    penalty = sp.symbols('penalty')
+    
+    ltr_expression = penalty*((sum_of_ltr_diag - m)**2)
+    rtl_expression = penalty*((sum_of_rtl_diag - m)**2)
+    # substitute p = (any real num) into the expression
+    ltr_expression = ltr_expression.subs(penalty, 1)
+    rtl_expression = rtl_expression.subs(penalty, 1)
+    
+    ltr_simplified = sp.expand(ltr_expression)
+    rtl_simplified = sp.expand(rtl_expression)
+    #print(f"Mathematical equation of ((sum of col {magic_square_column}) - m)^2")
+    #print(simplified)
+    add_expression_to_Q_matrix(Q_unary, ltr_simplified, n)
+    add_expression_to_Q_matrix(Q_unary, rtl_simplified, n)
+    
+
+def add_all_different_constraint(unary_symbols, Q_unary, m, n):
+    
+    for c in range(0, (n**2)):
+        unary_col = [None for _ in range(n**2)]
+        for r in range(0, n**2):
+            unary_col[r] = unary_symbols[r][c]
+        
+        #now, all unary variables in column c in unary_col
+
+        penalty = sp.symbols('penalty')
+        #print("unary_col:", unary_col)
+        expression = 1 * (( sum(unary_col) - (n**2 -c) )**2)
+
+        # substitute p = (any real num) into the expression
+        #penalty.subs(penalty, 1)
+        #expression = penalty*expression
+        
+        simplified = sp.expand(expression)
+        add_expression_to_Q_matrix(Q_unary, simplified, n)
+
+
+def add_all_constraints(unary_symbols, Q_unary, m, n):
+    #for testing purposes, i only want to try one constraint at a time
+
+    #constrain_rows = True
+    constrain_rows = False
+    #constrain_columns = True
+    constrain_columns = False
+    #constrain_diagonals = True
+    constrain_diagonals = False
+
+    all_different = True
+    #all_different = False
+    
+    if (constrain_rows): 
+        add_row_constraints(unary_symbols, Q_unary, m, n)
+    if (constrain_columns):
+        add_column_constraints(unary_symbols, Q_unary, m, n)
+    if (constrain_diagonals):
+        add_diagonal_constraints(unary_symbols, Q_unary, m, n)
+    if (all_different):
+        add_all_different_constraint(unary_symbols, Q_unary, m, n)
+    
+    constraints_added = [constrain_rows, constrain_columns, constrain_diagonals, all_different]
+
+    return constraints_added
 
 
 def create_Q_matrix(n):
     #will return a list of rows, 2D matrix
     #matrix = [([0] * n) for _ in range(n)]
     n_squared = n*n
-    matrix = np.zeros((n_squared, n_squared), dtype=int)
+    m = int((n * (n_squared+1) / 2))
 
-    #account for sums of rows
-    barrier = n
+    print("m:", m)
+    print("n:", n)
+    print("n**2:", n**2)
+    print("n**4:", n**4)
 
-    for row in range(0, n_squared):
-        if (barrier <= row):
-            barrier += n
 
-        #print("barrier <= row: ", barrier, "<=", row)
-        for col in range(row, barrier):
+    unary_matrix = [[None] * n_squared for i in range(n_squared)]
+    Q_unary = np.zeros((n**4, n**4), dtype=float)
 
-            if (row == col):
-                matrix[row, col] += 1
-            else:
-                matrix[row, col] += 2
+    place_variables_in_unary_matrix(unary_matrix)
+
+    # Print the result to verify
+    #print_str_matrix(unary_matrix)
+
+    #for algebra
+    unary_symbols = [[sp.Symbol(cell) for cell in row] for row in unary_matrix]
+
+    #add constraints
+    constraints_added = add_all_constraints(unary_symbols, Q_unary, m, n)
     
-    #account for sums of columns
+    print_matrix(Q_unary)
 
-    for row in range(0, n_squared):
+    return Q_unary, constraints_added
 
-        for col in range(row, n_squared, n):
-
-            if (row == col):
-                matrix[row, col] += 1
-            else:
-                matrix[row, col] += 2
-
-    #account for sum of left to right diagonal
-
-    for row in range(0, n_squared, n+1):
-
-        for col in range(row, n_squared, n+1):
-
-            if (row == col):
-                matrix[row, col] += 1
-            else:
-                matrix[row, col] += 2
-
-    #account for sum of right to left diagonal
-    
-    for row in range(n-1, n_squared, n-1):
-
-        for col in range(row, n_squared-1, n-1):
-
-            if (row == col):
-                matrix[row, col] += 1
-            else:
-                matrix[row, col] += 2
-
-
-    #add objective function
     
 
-    m = (n * (n*1)) / 2
-    for d in range(0, len((matrix))):
-        matrix[ d][ d] += -2*m
 
-
-
-    #so now, in upper triangular form
-    print("before unary and all diff")
-    print_matrix(matrix)
-    print()
-    print()
-    print()
-    
-
-    '''test_matrix = np.zeros((n_squared, n_squared), dtype=int)
-    m = (n * (n*1)) / 2
-    for d in range(0, len((test_matrix))):
-        test_matrix[ d][ d] += -2*m
-    q_unary = convert_to_unary_encoding(test_matrix)'''
-    
-    q_unary = convert_to_unary_encoding(matrix)
-    add_all_different_constraint_from_notes(q_unary, n*n)
-
-    print_matrix("after q unary and all diff")
-    print_matrix(q_unary)
-    print()
-    print()
-    print()
-
-    #add_all_different_constraint_mine(q_unary, n*n)
-    
-    #print("after all different added")
-    #print_matrix(q_unary)
-    #print()
-    #print()
-    #print()
-    return q_unary
 
 
 
@@ -251,12 +383,12 @@ def create_Q_matrix(n):
 
 
 #create_Q_matrix(2)
-'''m = 2
+'''n = 2
 #matrix = np.array([[1, 2], [0, 1]])
 #q_old = np.zeros((m, m), dtype=int)
 
 #the Q in xQx, for an unary encoding matrix
-q_unary = create_Q_matrix(m)'''
+q_unary = create_Q_matrix(n)'''
 
 
 '''print("unary encoding matrix")
