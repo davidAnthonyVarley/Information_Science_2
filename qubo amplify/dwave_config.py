@@ -40,8 +40,6 @@ def get_quantum_simulating_machine():
 
     return sampler
 
-
-
 def print_magic_square(m):
     print(m)
 
@@ -66,18 +64,14 @@ def print_magic_square(m):
 
 
 #magic square here has n * n integers in range [1, n*n]
-def unit_tests(magic_square, m, constraints_added):
+def unit_tests(magic_square, n, m, constraints_added):
 
     test_rows = constraints_added[0]
     test_cols = constraints_added[1]
     test_diagonals = constraints_added[2]
     test_all_different = constraints_added[3]
-
-
-
     total_errors = 0
     total_tests = 0
-    n = len(magic_square)
 
     print("m:", m)
     print("n:", n)
@@ -156,9 +150,9 @@ def unit_tests(magic_square, m, constraints_added):
         
         #should be 0
         regular_difference = correct_sum - ms_sum
-        print("correct_sum:", correct_sum)
-        print("ms_sum:", ms_sum)
-        print("regular_difference:", regular_difference)
+        #print("correct_sum:", correct_sum)
+        #print("ms_sum:", ms_sum)
+        #print("regular_difference:", regular_difference)#
 
         squared_correct_sum = 0
         squared_ms_sum = 0
@@ -169,16 +163,16 @@ def unit_tests(magic_square, m, constraints_added):
 
         squared_difference = squared_correct_sum - squared_ms_sum
         
-        print()
-        print("squared_correct_sum:", squared_correct_sum)
-        print("squared_ms_sum:", squared_ms_sum)
-        print("squared_difference:", squared_difference)
+        #print()
+        #print("squared_correct_sum:", squared_correct_sum)
+        #print("squared_ms_sum:", squared_ms_sum)
+        #print("squared_difference:", squared_difference)
 
         #if magic square contains [1 .. n**2]
         #both should be zero
-        print("if (",regular_difference," != ", 0,")")
-        print("or")
-        print("if (",squared_difference," != ", 0,")")
+        #print("if (",regular_difference," != ", 0,")")
+        #print("or")
+        #print("if (",squared_difference," != ", 0,")")
         
         if ((regular_difference != 0) or (squared_difference != 0)):
             total_errors += 1
@@ -188,7 +182,7 @@ def unit_tests(magic_square, m, constraints_added):
     
     print("*************")
     print("Constraints satisfied: ", total_tests - total_errors, "/", total_tests)
-    print("Success ratio: ", str((((total_tests - total_errors) / total_tests) * 100)) + "%")
+    print("Success ratio: ", str( round((((total_tests - total_errors) / total_tests) * 100), 2)) + "%")
 
 
 

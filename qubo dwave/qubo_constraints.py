@@ -46,7 +46,7 @@ def add_all_different_constraint_from_notes(Q_unary, unary_matrix_num_rows):
     for j in range(0, m):
         '''print("j:", j)'''
         penalty = 1
-        coefficient = 2 * (j-m+1) * 3 * penalty
+        coefficient = 2 * (j-m) * 3 * penalty
         print("Coefficient:", coefficient)
 
         for i in range(0, m):
@@ -292,10 +292,41 @@ def add_diagonal_constraints(unary_symbols, Q_unary, m, n):
     #print(simplified)
     add_expression_to_Q_matrix(Q_unary, ltr_simplified, n)
     add_expression_to_Q_matrix(Q_unary, rtl_simplified, n)
-    
+
+def second_all_diff_constraint(unary_symbols, Q_unary, m, n):
+    for c in range(0, (n**2) - 1):
+        first_unary_col = [None for _ in range(n**2)]
+        second_unary_col = [None for _ in range(n**2)]
+        for r in range(0, n**2):
+            first_unary_col[r] = unary_symbols[r][c]
+            second_unary_col[r] = unary_symbols[r][c+1]
+        
+        expression = 2 * (( sum(first_unary_col) - sum(second_unary_col) - 1 )**2)
+
+        # substitute p = (any real num) into the expression
+        #penalty.subs(penalty, 1)
+        #expression = penalty*expression
+        
+        simplified = sp.expand(expression)
+        add_expression_to_Q_matrix(Q_unary, simplified, n)
 
 def add_all_different_constraint(unary_symbols, Q_unary, m, n):
     
+    
+    # -0, -0 doesn't work
+    # -0, -1 doesn't work
+    # -0, -2 doesn't work
+    # -1, -0 doesn't work
+    # -1, -1 doesn't work   very close though
+    # -1, -2 doesn't work
+    # -2, -0 doesn't work
+    # -2, -1 doesn't work
+    # -2, -2 doesn't work
+
+    #\2, -1, like in notes, is the only one that works, sometimes
+    
+    
+
     for c in range(0, (n**2)):
         unary_col = [None for _ in range(n**2)]
         for r in range(0, n**2):
@@ -305,7 +336,7 @@ def add_all_different_constraint(unary_symbols, Q_unary, m, n):
 
         penalty = sp.symbols('penalty')
         #print("unary_col:", unary_col)
-        expression = 1 * (( sum(unary_col) - (n**2 -c) )**2)
+        expression = (( sum(unary_col)  - (n**2  - (c) ) )**2)
 
         # substitute p = (any real num) into the expression
         #penalty.subs(penalty, 1)
@@ -318,15 +349,15 @@ def add_all_different_constraint(unary_symbols, Q_unary, m, n):
 def add_all_constraints(unary_symbols, Q_unary, m, n):
     #for testing purposes, i only want to try one constraint at a time
 
-    #constrain_rows = True
-    constrain_rows = False
-    #constrain_columns = True
-    constrain_columns = False
-    #constrain_diagonals = True
-    constrain_diagonals = False
+    constrain_rows = True
+    #constrain_rows = False
+    constrain_columns = True
+    #constrain_columns = False
+    constrain_diagonals = True
+    #constrain_diagonals = False
 
-    all_different = True
-    #all_different = False
+    #all_different = True
+    all_different = False
     
     if (constrain_rows): 
         add_row_constraints(unary_symbols, Q_unary, m, n)
@@ -335,7 +366,8 @@ def add_all_constraints(unary_symbols, Q_unary, m, n):
     if (constrain_diagonals):
         add_diagonal_constraints(unary_symbols, Q_unary, m, n)
     if (all_different):
-        add_all_different_constraint(unary_symbols, Q_unary, m, n)
+        add_all_different_constraint_from_notes(Q_unary, n*n)
+        #add_all_different_constraint(unary_symbols, Q_unary, m, n)
     
     constraints_added = [constrain_rows, constrain_columns, constrain_diagonals, all_different]
 

@@ -31,10 +31,10 @@ def get_quantum_simulating_machine():
 
     dwave_token = "DEV-fc0d4fb3d4e5b9480999692a1cba611f0eb7c7e7"
     os.environ['DWAVE_API_TOKEN'] = dwave_token
-# Create a QUBO problem
+    # Create a QUBO problem
 
 
-# Set up the D-Wave sampler (use a quantum system or simulator)
+    # Set up the D-Wave sampler (use a quantum system or simulator)
     #sampler = EmbeddingComposite(DWaveSampler())
     sampler = LeapHybridSampler()
 

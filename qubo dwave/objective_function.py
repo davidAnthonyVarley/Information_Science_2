@@ -7,14 +7,14 @@ from dwave_config import print_dwave_solution
 import time
 
 
-def run_objective_function(m):
+def run_objective_function(n):
 
 
-    print("Number of variables:", m)
-    print("Using", m, "x", m, "unary encoding matrix")
-    print("Creating Q", m*m, "x", m*m, "matrix")
+    print("Number of variables in magic sqaure:",n**2)
+    print("Using",n**2, "x",n**2, "unary encoding matrix")
+    print("Creating Q",n**4, "x",n**4, "matrix")
     print()
-    coefficient_matrix, constraints_added = create_Q_matrix(m)
+    coefficient_matrix, constraints_added = create_Q_matrix(n)
 
     print("Converting Q unary matrix for dwave")
     Q = convert_matrix_for_dwave(coefficient_matrix)
@@ -38,7 +38,7 @@ def run_objective_function(m):
 
 
 #n = 2
-n = int(input("Enter n:"))
+n = int(input("Enter n: "))
 start = time.time()
 run_objective_function(n)
 end = time.time()

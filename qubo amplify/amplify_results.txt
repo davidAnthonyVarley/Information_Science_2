@@ -1,0 +1,23 @@
+ok, so the longer i set the timeout, the worse it performed, couunter-intuitively
+
+
+with amplify version 1.3.1, I was able to implement the QUBO constraints.
+all of my constraints bar one worked consistently, the all_different(..) constraint
+
+I attempted 
+
+Time elasped for amplify pure for n = 2:
+10.379272222518921 seconds
+
+Time elasped for amplify pure for n = 3:
+11.539141416549683 seconds
+
+Time elasped for amplify pure for n = 4:
+10.133787631988525 seconds
+
+Time elasped for amplify pure for n = 5:
+350 seconds
+
+Time elasped for amplify pure for n = 6:
+2m 48s to load constraints
+
